@@ -178,11 +178,12 @@ with col1:
     # 입력창 초기값 설정 (세션 상태에서 값 가져오기)
     input_value = st.session_state.get("user_input", "")
 
-    user_input = st.text_area("메시지를 입력하세요...", height=100, value=input_value)
+    user_input = st.text_area(
+        "메시지를 입력하세요...", height=140, value=input_value, key="user_input_area"
+    )
 
 with col2:
-    st.write("&nbsp;")
-    st.write("&nbsp;")
+    st.markdown(f'<div style="margin-top: 55px;"></div>', unsafe_allow_html=True)
     send_button = st.button("전송", use_container_width=True, type="primary")
 
 # 페이지 로드 시 자동 전송 확인
