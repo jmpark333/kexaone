@@ -125,8 +125,8 @@ with st.sidebar:
             title, key=f"btn_{title}_{hash(prompt)}", use_container_width=True
         ):
             st.session_state.messages = []
-            st.session_state.user_input = prompt
             st.session_state.auto_send = True
+            st.session_state.auto_send_prompt = prompt
             st.rerun()
 
     st.markdown("---")
@@ -134,7 +134,6 @@ with st.sidebar:
     # 초기화 버튼
     if st.button("🗑️ 대화 내용 초기화", use_container_width=True):
         st.session_state.messages = []
-        st.session_state.user_input = ""
         st.rerun()
 
     st.markdown("---")
@@ -167,47 +166,15 @@ for message in st.session_state.messages:
                     st.markdown(message["reasoning"])
             st.markdown(message["content"])
 
-# 사용자 입력 영역
-st.markdown("---")
-
-# 세션 상태 초기화 (입력값 관리용)
-if "user_input" not in st.session_state:
-    st.session_state.user_input = ""
-
-# 입력창과 전송 버튼을 col으로 나누기
-col1, col2 = st.columns([4, 1])
-
-with col1:
-    # 입력창 초기값 설정 (세션 상태에서 값 가져오기)
-    input_value = st.session_state.get("user_input", "")
-
-    user_input = st.text_area("메시지를 입력하세요...", height=35, value=input_value)
-
-with col2:
-    st.markdown(f'<div style="margin-top: 55px;"></div>', unsafe_allow_html=True)
-    send_button = st.button("전송", use_container_width=True, type="primary")
-
-# 페이지 로드 시 자동 전송 확인
-if (
-    st.session_state.auto_send
-    and st.session_state.user_input
-    and st.session_state.user_input.strip()
-):
-    # 자동 전송 플래그 초기화
-    st.session_state.auto_send = False
-
-    # 입력값 저장 (입력창 초기화 전에)
-    current_input = st.session_state.user_input
-
+# 어시스턴트 응답 생성 함수
+def generate_response(user_message):
+    """사용자 메시지에 대한 응답을 생성합니다."""
     # 사용자 메시지 추가
-    st.session_state.messages.append({"role": "user", "content": current_input})
+    st.session_state.messages.append({"role": "user", "content": user_message})
 
     # 사용자 메시지 표시
     with st.chat_message("user"):
-        st.markdown(current_input)
-
-    # 입력창 초기화
-    st.session_state.user_input = ""
+        st.markdown(user_message)
 
     # 어시스턴트 응답 생성 (스트리밍)
     with st.chat_message("assistant"):
@@ -263,77 +230,19 @@ if (
             st.markdown("- 인터넷 연결을 확인하세요")
             st.markdown("- FriendliAI 서비스 상태를 확인하세요")
 
+# 프롬프트 예제에서 자동 전송 처리
+if st.session_state.auto_send and "auto_send_prompt" in st.session_state:
+    prompt = st.session_state.auto_send_prompt
+    st.session_state.auto_send = False
+    del st.session_state.auto_send_prompt
+    generate_response(prompt)
     st.rerun()
 
-# 전송 버튼 클릭 또는 Enter 키 처리
-if send_button and user_input and user_input.strip():
-    # 입력값 세션 상태에 저장
-    st.session_state.user_input = user_input
+# 채팅 입력창 (Enter 키로 전송 가능)
+user_input = st.chat_input("메시지를 입력하세요...")
 
-    # 사용자 메시지 추가
-    st.session_state.messages.append({"role": "user", "content": user_input})
-
-    # 사용자 메시지 표시
-    with st.chat_message("user"):
-        st.markdown(user_input)
-
-    # 입력창 초기화
-    st.session_state.user_input = ""
-
-    # 어시스턴트 응답 생성 (스트리밍)
-    with st.chat_message("assistant"):
-        try:
-            client = get_client(st.session_state.api_key)
-            extra_body = {
-                "parse_reasoning": True,
-                "chat_template_kwargs": {"enable_thinking": thinking_mode},
-            }
-
-            # 스트리밍 응답 생성
-            stream = client.chat.completions.create(
-                model=MODEL,
-                extra_body=extra_body,
-                messages=st.session_state.messages,
-                stream=True,
-            )
-
-            # 추론 내용과 최종 응답을 저장할 변수
-            full_reasoning = ""
-            full_content = ""
-
-            # placeholder 생성
-            reasoning_placeholder = st.empty() if thinking_mode else None
-            content_placeholder = st.empty()
-
-            # 스트리밍 응답 처리
-            for chunk in stream:
-                delta = chunk.choices[0].delta
-
-                reasoning_content = getattr(delta, "reasoning_content", None)
-                content = getattr(delta, "content", None)
-
-                if reasoning_content:
-                    full_reasoning += reasoning_content
-                    if thinking_mode and reasoning_placeholder:
-                        reasoning_placeholder.markdown(full_reasoning)
-
-                if content:
-                    full_content += content
-                    content_placeholder.markdown(full_content)
-
-            # 메시지 저장
-            message_data = {"role": "assistant", "content": full_content}
-            if full_reasoning:
-                message_data["reasoning"] = full_reasoning
-            st.session_state.messages.append(message_data)
-
-        except Exception as e:
-            st.error(f"오류가 발생했습니다: {str(e)}")
-            st.markdown("💡 **해결 방법**:")
-            st.markdown("- API 키가 올바른지 확인하세요")
-            st.markdown("- 인터넷 연결을 확인하세요")
-            st.markdown("- FriendliAI 서비스 상태를 확인하세요")
-
+if user_input and user_input.strip():
+    generate_response(user_input)
     st.rerun()
 
 # 하단 정보
