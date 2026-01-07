@@ -181,9 +181,7 @@ with col1:
     # 입력창 초기값 설정 (세션 상태에서 값 가져오기)
     input_value = st.session_state.get("user_input", "")
 
-    user_input = st.text_area(
-        "메시지를 입력하세요...", height=35, value=input_value, key="user_input"
-    )
+    user_input = st.text_area("메시지를 입력하세요...", height=35, value=input_value)
 
 with col2:
     st.markdown(f'<div style="margin-top: 55px;"></div>', unsafe_allow_html=True)
