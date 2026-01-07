@@ -256,8 +256,17 @@ if st.session_state.auto_send and "auto_send_prompt" in st.session_state:
 user_input = st.chat_input("메시지를 입력하세요...")
 
 if user_input and user_input.strip():
-    generate_response(user_input)
-    st.rerun()
+    # 두 번째 메시지부터 대화 내용 초기화 확인
+    if len(st.session_state.messages) > 0:
+        st.warning("⚠️ **FriendliAI 무료 API 사용으로 대화내용을 초기화합니다.**")
+        if st.button("🗑️ 대화 내용 초기화 확인", key="confirm_clear", type="primary"):
+            st.session_state.messages = []
+            st.session_state.auto_send = True
+            st.session_state.auto_send_prompt = user_input
+            st.rerun()
+    else:
+        generate_response(user_input)
+        st.rerun()
 
 # 하단 정보
 st.markdown("---")
