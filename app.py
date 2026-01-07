@@ -34,13 +34,15 @@ if "api_key" not in st.session_state:
     st.session_state.api_key = ""
 
 
-# OpenAI 클라이언트 초기화
-@st.cache_resource
+# OpenAI 클라이언트 초기화 (캐싱 제거)
 def get_client(api_key):
-    return OpenAI(
+    st.write(f"🔍 [DEBUG] get_client 호출됨")
+    client = OpenAI(
         api_key=api_key,
         base_url=BASE_URL,
     )
+    st.write(f"🔍 [DEBUG] 클라이언트 생성 완료")
+    return client
 
 
 # 프롬프트 예제
@@ -193,6 +195,17 @@ def generate_response(user_message):
                 "chat_template_kwargs": {"enable_thinking": st.session_state.thinking_mode},
             }
             st.write(f"🔍 [DEBUG] API 요청 파라미터: {extra_body}")
+            st.write(f"🔍 [DEBUG] 메시지 리스트: {st.session_state.messages}")
+            
+            # 스트리밍 응답 생성
+            st.write(f"🔍 [DEBUG] client.chat.completions.create 호출 시작")
+            stream = client.chat.completions.create(
+                model=MODEL,
+                extra_body=extra_body,
+                messages=st.session_state.messages,
+                stream=True,
+            )
+            st.write(f"🔍 [DEBUG] stream 객체 생성 완료: {type(stream)}")
 
             # 스트리밍 응답 생성
             stream = client.chat.completions.create(
