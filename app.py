@@ -301,6 +301,10 @@ if send_button and user_input and user_input.strip():
             full_reasoning = ""
             full_content = ""
 
+            # placeholder 생성
+            reasoning_placeholder = st.empty() if thinking_mode else None
+            content_placeholder = st.empty()
+
             # 스트리밍 응답 처리
             for chunk in stream:
                 delta = chunk.choices[0].delta
@@ -310,12 +314,12 @@ if send_button and user_input and user_input.strip():
 
                 if reasoning_content:
                     full_reasoning += reasoning_content
-                    if st.session_state.thinking_mode:
-                        st.write(reasoning_content)
+                    if thinking_mode and reasoning_placeholder:
+                        reasoning_placeholder.markdown(full_reasoning)
 
                 if content:
                     full_content += content
-                    st.write(content)
+                    content_placeholder.markdown(full_content)
 
             # 메시지 저장
             message_data = {"role": "assistant", "content": full_content}
