@@ -228,7 +228,9 @@ def generate_response(user_message):
             
             # 레이트 리미팅 오류 처리
             if "rate limit" in str(e).lower():
-                st.error("⏱️ **API 요청 한도 초과**: 잠시 후 다시 시도해주세요.")
+                st.error("⏱️ **API 요청 한도 초과**")
+                st.markdown("### ⏸️ 잠시 후 다시 시도해주세요")
+                st.markdown("현재 API 요청 한도를 초과했습니다. 잠시(약 1분) 기다린 후 다시 메시지를 입력해 주세요.")
                 st.markdown("💡 **해결 방법**:")
                 st.markdown("- 잠시 기다린 후 다시 시도해주세요")
                 st.markdown("- FriendliAI 계정의 요청 한도를 확인하세요")
