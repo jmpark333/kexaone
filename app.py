@@ -181,7 +181,9 @@ with col1:
     # 입력창 초기값 설정 (세션 상태에서 값 가져오기)
     input_value = st.session_state.get("user_input", "")
 
-    user_input = st.text_area("메시지를 입력하세요...", height=35, value=input_value)
+    user_input = st.text_area(
+        "메시지를 입력하세요...", height=35, value=input_value, key="user_input"
+    )
 
 with col2:
     st.markdown(f'<div style="margin-top: 55px;"></div>', unsafe_allow_html=True)
@@ -351,14 +353,29 @@ st.markdown("""
 st.markdown(
     """
 <style>
-    .stChatMessage {
-        background-color: #f0f7ff;
-        border-radius: 10px;
-        padding: 15px;
-        margin: 10px 0;
+    @media (prefers-color-scheme: light) {
+        .stChatMessage {
+            background-color: #f0f7ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #262730;
+        }
+        .stTextArea {
+            background-color: #ffffff;
+        }
     }
-    .stTextArea {
-        background-color: #ffffff;
+    @media (prefers-color-scheme: dark) {
+        .stChatMessage {
+            background-color: #262730 !important;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #ffffff !important;
+        }
+        .stTextArea {
+            background-color: #1e1e1e;
+        }
     }
     .stButton>button {
         border-radius: 5px;
