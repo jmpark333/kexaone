@@ -121,7 +121,9 @@ with st.sidebar:
     st.markdown("아래 예제를 클릭하면 입력창에 자동으로 입력됩니다:")
 
     for title, prompt in PROMPT_EXAMPLES.items():
-        if st.button(title, key=f"btn_{title}", use_container_width=True):
+        if st.button(
+            title, key=f"btn_{title}_{hash(prompt)}", use_container_width=True
+        ):
             st.session_state.user_input = prompt
             st.session_state.auto_send = True
             st.rerun()
