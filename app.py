@@ -124,6 +124,7 @@ with st.sidebar:
         if st.button(
             title, key=f"btn_{title}_{hash(prompt)}", use_container_width=True
         ):
+            st.session_state.messages = []
             st.session_state.user_input = prompt
             st.session_state.auto_send = True
             st.rerun()
