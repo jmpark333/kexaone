@@ -211,7 +211,12 @@ def generate_response(user_message):
             content_placeholder = st.empty()
 
             # 스트리밍 응답 처리
+            st.write(f"🔍 [DEBUG] 스트리밍 루프 시작")
+            chunk_count = 0
             for chunk in stream:
+                chunk_count += 1
+                if chunk_count <= 5:  # 처음 5개 청크만 로깅
+                    st.write(f"🔍 [DEBUG] 청크 #{chunk_count}: {chunk}")
                 delta = chunk.choices[0].delta
 
                 reasoning_content = getattr(delta, "reasoning_content", None)
@@ -219,12 +224,15 @@ def generate_response(user_message):
 
                 if reasoning_content:
                     full_reasoning += reasoning_content
-                    if thinking_mode and reasoning_placeholder:
+                    if st.session_state.thinking_mode and reasoning_placeholder:
                         reasoning_placeholder.markdown(full_reasoning)
 
                 if content:
                     full_content += content
                     content_placeholder.markdown(full_content)
+            
+            st.write(f"🔍 [DEBUG] 스트리밍 완료. 총 청크 수: {chunk_count}")
+            st.write(f"🔍 [DEBUG] 최종 응답 길이: {len(full_content)}")
 
             # 메시지 저장
             message_data = {"role": "assistant", "content": full_content}
