@@ -258,12 +258,7 @@ user_input = st.chat_input("메시지를 입력하세요...")
 if user_input and user_input.strip():
     # 두 번째 메시지부터 대화 내용 초기화 확인
     if len(st.session_state.messages) > 0:
-        st.warning("⚠️ **FriendliAI 무료 API 사용으로 대화내용을 초기화합니다.**")
-        if st.button("🗑️ 대화 내용 초기화 확인", key="confirm_clear", type="primary"):
-            st.session_state.messages = []
-            st.session_state.auto_send = True
-            st.session_state.auto_send_prompt = user_input
-            st.rerun()
+        st.warning("⚠️ **FriendliAI 무료 API 사용으로 대화내용을 초기화합니다.** 사이드바에서 🗑️ 대화 내용 초기화 를 클릭한 후 다시 시도하세요.")
     else:
         generate_response(user_input)
         st.rerun()
