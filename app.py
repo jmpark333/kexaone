@@ -169,8 +169,15 @@ for message in st.session_state.messages:
 # 어시스턴트 응답 생성 함수
 def generate_response(user_message):
     """사용자 메시지에 대한 응답을 생성합니다."""
+    # 디버깅 로그
+    st.write(f"🔍 [DEBUG] generate_response 호출됨")
+    st.write(f"🔍 [DEBUG] user_message: {user_message}")
+    st.write(f"🔍 [DEBUG] 현재 메시지 개수: {len(st.session_state.messages)}")
+    st.write(f"🔍 [DEBUG] thinking_mode: {st.session_state.thinking_mode}")
+    
     # 사용자 메시지 추가
     st.session_state.messages.append({"role": "user", "content": user_message})
+    st.write(f"🔍 [DEBUG] 사용자 메시지 추가 후 메시지 개수: {len(st.session_state.messages)}")
 
     # 사용자 메시지 표시
     with st.chat_message("user"):
@@ -179,11 +186,13 @@ def generate_response(user_message):
     # 어시스턴트 응답 생성 (스트리밍)
     with st.chat_message("assistant"):
         try:
+            st.write(f"🔍 [DEBUG] API 호출 시작")
             client = get_client(st.session_state.api_key)
             extra_body = {
                 "parse_reasoning": True,
-                "chat_template_kwargs": {"enable_thinking": thinking_mode},
+                "chat_template_kwargs": {"enable_thinking": st.session_state.thinking_mode},
             }
+            st.write(f"🔍 [DEBUG] API 요청 파라미터: {extra_body}")
 
             # 스트리밍 응답 생성
             stream = client.chat.completions.create(
@@ -222,9 +231,11 @@ def generate_response(user_message):
             if full_reasoning:
                 message_data["reasoning"] = full_reasoning
             st.session_state.messages.append(message_data)
+            st.write(f"🔍 [DEBUG] 어시스턴트 메시지 추가 후 메시지 개수: {len(st.session_state.messages)}")
 
         except Exception as e:
             st.error(f"오류가 발생했습니다: {str(e)}")
+            st.write(f"🔍 [DEBUG] 오류 상세: {type(e).__name__}: {str(e)}")
             st.markdown("💡 **해결 방법**:")
             st.markdown("- API 키가 올바른지 확인하세요")
             st.markdown("- 인터넷 연결을 확인하세요")
@@ -239,10 +250,16 @@ if st.session_state.auto_send and "auto_send_prompt" in st.session_state:
     st.rerun()
 
 # 채팅 입력창 (Enter 키로 전송 가능)
+st.write(f"🔍 [DEBUG] 채팅 입력창 초기화")
+st.write(f"🔍 [DEBUG] 현재 메시지 개수: {len(st.session_state.messages)}")
 user_input = st.chat_input("메시지를 입력하세요...")
 
+st.write(f"🔍 [DEBUG] user_input 값: '{user_input}'")
+
 if user_input and user_input.strip():
+    st.write(f"🔍 [DEBUG] 사용자 입력 감지: '{user_input}'")
     generate_response(user_input)
+    st.write(f"🔍 [DEBUG] rerun 호출 전")
     st.rerun()
 
 # 하단 정보
