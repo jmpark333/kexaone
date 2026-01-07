@@ -182,7 +182,7 @@ with col1:
     input_value = st.session_state.get("user_input", "")
 
     user_input = st.text_area(
-        "메시지를 입력하세요...", height=35, value=input_value, key="user_input"
+        "메시지를 입력하세요...", height=35, value=input_value, key="user_input_area"
     )
 
 with col2:
